@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace Task.Backend
+﻿namespace Task.Backend
 {
     public class Time
     {
@@ -41,33 +39,34 @@ namespace Task.Backend
 
         public int Hour
         {
-          get => _hour;
-          set => _hour = ValidHour(value);
+            get => _hour;
+            set => _hour = ValidHour(value);
         }
         public int Minute
-        { 
-          get => _minute;
-          set => _minute = ValidMinute(value);
+        {
+            get => _minute;
+            set => _minute = ValidMinute(value);
         }
         public int Second
-        { 
-          get => _second;
-          set => _second = ValidSecond(value);
+        {
+            get => _second;
+            set => _second = ValidSecond(value);
         }
         public int Millisecond
-        { 
-          get => _millisecond;
-          set => _millisecond = ValidMillisecond(value);
+        {
+            get => _millisecond;
+            set => _millisecond = ValidMillisecond(value);
         }
 
         public override string ToString()
         {
+            int hour12;
             if (Hour >= 12)
             {
-                Hour -= 12;
-                return $"{Hour:00}:{Minute:00}:{Second:00}.{Millisecond:00} PM";
-            }            
-            return $"{Hour:00}:{Minute:00}:{Second:00}.{Millisecond:00} AM";
+                hour12 = Hour - 12;
+                return $"{hour12:00}:{Minute:00}:{Second:00}.{Millisecond:000} PM";
+            }
+            return $"{Hour:00}:{Minute:00}:{Second:00}.{Millisecond:000} AM";
         }
 
 
@@ -75,7 +74,7 @@ namespace Task.Backend
         {
             if (hour < 0 || hour > 23)
             {
-                throw new ArgumentOutOfRangeException(nameof(hour), "The hour value must be between 0 and 23");
+                throw new Exception($"The hour: {hour}, is not valid");
             }
             return hour;
         }
@@ -84,7 +83,7 @@ namespace Task.Backend
         {
             if (minute < 0 || minute > 59)
             {
-                throw new ArgumentOutOfRangeException(nameof(minute), "The hour value must be between 0 and 59");
+                throw new Exception($"The hour: {minute}, is not valid");
             }
             return minute;
         }
@@ -93,8 +92,8 @@ namespace Task.Backend
         {
             if (second < 0 || second > 59)
             {
-                throw new ArgumentOutOfRangeException(nameof(second), "The hour value must be between 0 and 59");
-            }   
+                throw new Exception($"The hour: {second}, is not valid");
+            }
             return second;
         }
 
@@ -102,15 +101,44 @@ namespace Task.Backend
         {
             if (millisecond < 0 || millisecond > 999)
             {
-                throw new ArgumentOutOfRangeException(nameof(millisecond), "The hour value must be between 0 and 999");
+                throw new Exception($"The hour: {millisecond}, is not valid");
             }
             return millisecond;
         }
 
-        //public int ToMillisecond()
-        //{
+        public int ToMillisecond() => (Hour * 3600000) + (Minute * 60000) + (Second * 1000) + Millisecond;
 
-        //}
+        public int ToSecond() => (Hour * 3600) + (Minute * 60) + Second;
+
+        public int ToMinute() => (Hour * 60) + Minute;
+
+        public Time Add(Time myTimeT3)
+        {
+            int totalMilliseconds = myTimeT3.Millisecond + Millisecond;
+            int saveSeconds = totalMilliseconds / 1000;
+            int finalMilliseconds = totalMilliseconds % 1000;
+
+            int totalSeconds = myTimeT3.Second + Second + saveSeconds;
+            int saveMinutes = totalSeconds / 60;
+            int finalSeconds = totalSeconds % 60;
+
+            int totalMinutes = myTimeT3.Minute + Minute + saveMinutes;
+            int saveHour = totalMinutes / 60;
+            int finalMinutes = totalMinutes % 60;
+
+            int totalHours = myTimeT3.Hour + Hour + saveHour;
+            int finalHours = totalHours % 24;
+
+            return new Time(finalHours, finalMinutes, finalSeconds, finalMilliseconds);
+        }
+
+        public bool IsOtherDay(Time myTimeT4)
+        {
+           int totalMilliseconds = ToMillisecond() + myTimeT4.ToMillisecond();
+           return totalMilliseconds > 86400000;
+        }
+
+
 
     }
 } 
